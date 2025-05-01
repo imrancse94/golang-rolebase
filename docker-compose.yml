@@ -1,0 +1,139 @@
+# Define services
+services:
+  # App Service
+  app:
+    build:
+      context: . # Use an image built from the specified dockerfile in the current directory.
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "80:${APP_PORT}" # Forward the exposed port 8080 on the container to port 8080 on the host machine
+    restart: always
+    # user: ${MY_UID}:${MY_GID}
+    depends_on:
+      - redis 
+      - mariadb
+      - postgres
+      - dbgate
+    volumes:
+      - './:/app'
+    networks: # Networks to join (Services on the same network can communicate with each other using their name)
+      - backend
+
+  mariadb:
+    container_name: 'db'
+    image: 'mariadb:10'
+    restart: always
+    # user: ${MY_UID}:${MY_GID}
+    env_file:
+      - .env
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USER}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+      - '/docker_volume/mariadb:/var/lib/mysql'
+    networks:
+      - backend
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    restart: always
+    # user: ${MY_UID}:${MY_GID}
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    volumes:
+      - /docker_volume/postgres_data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    networks:
+      - backend
+
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: pgadmin
+  #   # user: 'root:root'
+  #   restart: always
+  #   depends_on:
+  #     - postgres
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@example.com
+  #     PGADMIN_DEFAULT_PASSWORD: ${DB_PASSWORD}
+  #   ports:
+  #     - "5050:5050"
+  #   volumes:
+  #     - /docker_volume/pgadmin-data:/var/lib/pgadmin
+  #   networks:
+  #     - backend
+      
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    restart: always
+    depends_on:
+        - mariadb
+    environment:
+        PMA_HOST: mariadb
+        MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    ports:
+        - "8081:80"
+    networks:
+        - backend
+
+  dbgate:
+    image: dbgate/dbgate
+    container_name: dbgate
+    # user: ${MY_UID}:${MY_GID}
+    restart: always
+    ports:
+      - 3000:3000
+    volumes:
+      - /docker_volume/dbgate-data:/root/.dbgate
+    # environment:
+    #   CONNECTIONS: con1,con2,con3,con4
+
+    #   LABEL_con1: MySql
+    #   SERVER_con1: mysql
+    #   USER_con1: root
+    #   PASSWORD_con1: TEST
+    #   PORT_con1: 3306
+    #   ENGINE_con1: mysql@dbgate-plugin-mysql
+
+    #   LABEL_con2: Postgres
+    #   SERVER_con2: postgres
+    #   USER_con2: postgres
+    #   PASSWORD_con2: TEST
+    #   PORT_con2: 5432
+    #   ENGINE_con2: postgres@dbgate-plugin-postgres
+
+    #   LABEL_con3: MongoDB
+    #   URL_con3: mongodb://mongo:27017
+    #   ENGINE_con3: mongo@dbgate-plugin-mongo
+
+    #   LABEL_con4: SQLite
+    #   FILE_con4: /home/jan/feeds.sqlite
+    #   ENGINE_con4: sqlite@dbgate-plugin-sqlite
+    networks:
+        - backend
+
+
+  # Redis Service
+  redis:
+    image: "redis:alpine" # Use a public Redis image to build the redis service
+    restart: always
+    ports:
+      - '${REDIS_PORT}:${REDIS_PORT}'
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

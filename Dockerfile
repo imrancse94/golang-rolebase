@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
 
-FROM golang:1.23-alpine
+FROM golang:1.24.2-alpine
 
-USER $USER
+# USER $USER
 # The latest alpine images don't have some tools like (`git` and `bash`).
 # Adding git, bash and openssh to the image
 RUN apk update && apk upgrade && \

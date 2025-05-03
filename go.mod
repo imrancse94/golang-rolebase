@@ -1,8 +1,6 @@
 module go-fiber
 
-go 1.23.0
-
-toolchain go1.24.2
+go 1.24
 
 require (
 	github.com/go-playground/validator/v10 v10.26.0

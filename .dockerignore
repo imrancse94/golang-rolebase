@@ -2,3 +2,6 @@ Dockerfile
 Dockerfile.prod
 docker-compose.yml
 .env
+main
+.git
+.gitignore

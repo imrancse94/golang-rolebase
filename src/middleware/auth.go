@@ -1,7 +1,9 @@
 package middleware
 
 import (
+	"go-fiber/src/config"
 	"go-fiber/src/lib"
+	"go-fiber/src/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -10,12 +12,16 @@ import (
 func AuthMiddleware(c *fiber.Ctx) error {
 	token := c.Get("Authorization")
 	if token == "" {
-		return c.Status(401).JSON(fiber.Map{"error": "Unauthorized"})
+		return utils.ErrorResponse(c, 401, config.NotFoundCode, "Authorization header is required")
 	}
 
-	_, err := lib.ValidateToken(token)
+	claims, err := lib.ValidateToken(token)
 	if err != nil {
-		return c.Status(401).JSON(fiber.Map{"error": "Invalid token"})
+		return utils.ErrorResponse(c, 401, config.UnauthorizedCode, "Invalid or expired token")
+	}
+
+	if claims["type"] != "access_token" {
+		return utils.ErrorResponse(c, 403, config.ForbiddenCode, "Access denied")
 	}
 
 	return c.Next()

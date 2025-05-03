@@ -28,7 +28,8 @@ func main() {
 		log.Println("Database seeding.")
 		return
 	} else if len(os.Args) > 1 && os.Args[1] == "migrate" {
-		config.ConnectDB()
+		config.ConnectDB("migrate")
+		log.Println("Database migration.")
 		return
 	}
 

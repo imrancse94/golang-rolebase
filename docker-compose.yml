@@ -10,7 +10,7 @@ services:
     ports:
       - "80:${APP_PORT}" # Forward the exposed port 8080 on the container to port 8080 on the host machine
     restart: always
-    # user: ${MY_UID}:${MY_GID}
+    
     depends_on:
       - redis 
       - mariadb
@@ -25,7 +25,7 @@ services:
     container_name: 'db'
     image: 'mariadb:10'
     restart: always
-    # user: ${MY_UID}:${MY_GID}
+    
     env_file:
       - .env
     ports:
@@ -46,7 +46,7 @@ services:
     image: postgres:16
     container_name: postgres
     restart: always
-    # user: ${MY_UID}:${MY_GID}
+    
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -61,7 +61,7 @@ services:
   # pgadmin:
   #   image: dpage/pgadmin4
   #   container_name: pgadmin
-  #   # user: 'root:root'
+  
   #   restart: always
   #   depends_on:
   #     - postgres
@@ -91,36 +91,12 @@ services:
   dbgate:
     image: dbgate/dbgate
     container_name: dbgate
-    # user: ${MY_UID}:${MY_GID}
+    
     restart: always
     ports:
       - 3000:3000
     volumes:
       - /docker_volume/dbgate-data:/root/.dbgate
-    # environment:
-    #   CONNECTIONS: con1,con2,con3,con4
-
-    #   LABEL_con1: MySql
-    #   SERVER_con1: mysql
-    #   USER_con1: root
-    #   PASSWORD_con1: TEST
-    #   PORT_con1: 3306
-    #   ENGINE_con1: mysql@dbgate-plugin-mysql
-
-    #   LABEL_con2: Postgres
-    #   SERVER_con2: postgres
-    #   USER_con2: postgres
-    #   PASSWORD_con2: TEST
-    #   PORT_con2: 5432
-    #   ENGINE_con2: postgres@dbgate-plugin-postgres
-
-    #   LABEL_con3: MongoDB
-    #   URL_con3: mongodb://mongo:27017
-    #   ENGINE_con3: mongo@dbgate-plugin-mongo
-
-    #   LABEL_con4: SQLite
-    #   FILE_con4: /home/jan/feeds.sqlite
-    #   ENGINE_con4: sqlite@dbgate-plugin-sqlite
     networks:
         - backend
 

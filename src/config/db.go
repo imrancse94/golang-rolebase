@@ -25,7 +25,7 @@ type Database struct {
 }
 
 // ConnectDB initializes the database connection based on DB_CONNECTION type
-func ConnectDB() (*Database, error) {
+func ConnectDB(conType ...string) (*Database, error) {
 	// Load .env file
 	if err := godotenv.Load(); err != nil {
 		log.Println("Warning: .env file not found, using system environment variables")
@@ -52,7 +52,9 @@ func ConnectDB() (*Database, error) {
 		}
 		DB = &lib.SQLDB{Db: db}
 		dbIface.SQLDB = db
-		db.AutoMigrate(migrations.Entities...)
+		if conType != nil && conType[0] == "migrate" {
+			db.AutoMigrate(migrations.Entities...)
+		}
 
 	case "postgres":
 		dsn := fmt.Sprintf(
@@ -69,7 +71,9 @@ func ConnectDB() (*Database, error) {
 		}
 		DB = &lib.SQLDB{Db: db}
 		dbIface.SQLDB = db
-		db.AutoMigrate(migrations.Entities...)
+		if conType != nil && conType[0] == "migrate" {
+			db.AutoMigrate(migrations.Entities...)
+		}
 	case "mongodb":
 		client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
 		if err != nil {

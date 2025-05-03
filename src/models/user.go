@@ -3,8 +3,7 @@ package models
 import (
 	"context"
 	"go-fiber/src/config"
-
-	"golang.org/x/crypto/bcrypt"
+	"go-fiber/src/lib"
 )
 
 type User struct {
@@ -12,16 +11,6 @@ type User struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"-"`
-}
-
-// HashPassword hashes the password before storing it
-func (u *User) HashPassword() error {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-	u.Password = string(hashedPassword)
-	return nil
 }
 
 // Check if the email already exists in the database
@@ -41,12 +30,18 @@ func (u *User) EmailExists(email string) (bool, error) {
 
 // Create inserts a new user with a hashed password
 func (u *User) Create() error {
+
+	// execption handling
 	ctx := context.Background()
 
 	// Hash the password before saving
-	if err := u.HashPassword(); err != nil {
-		return err
+	Password, err := lib.HashPassword(u.Password)
+
+	if err != nil {
+		return nil
 	}
+
+	u.Password = Password
 
 	return config.DB.Create(ctx, "users", u)
 }
@@ -57,9 +52,11 @@ func (u *User) Update() error {
 
 	// Hash password only if it's changed
 	if u.Password != "" {
-		if err := u.HashPassword(); err != nil {
-			return err
+		Password, err := lib.HashPassword(u.Password)
+		if err != nil {
+			return nil
 		}
+		u.Password = Password
 	}
 
 	return config.DB.Update(ctx, "users", map[string]interface{}{"id": u.ID}, u)

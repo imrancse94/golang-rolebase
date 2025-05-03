@@ -16,8 +16,8 @@ services:
       - mariadb
       - postgres
       - dbgate
-    volumes:
-      - './:/app'
+    # volumes:
+    #   - './:/app'
     networks: # Networks to join (Services on the same network can communicate with each other using their name)
       - backend
 

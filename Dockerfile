@@ -27,6 +27,9 @@ RUN go mod tidy
 # Copy the source from the current directory to the Working Directory inside the container
 COPY . .
 
+# Set the environment variables
+RUN cp .env.example .env
+
 # Build the Go app
 RUN go build -o main ./src
 

@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func SetupRoutes(app *fiber.App) {
+func SetupUserRoutes(app *fiber.App) {
 	userGroup := app.Group("/users")
 	userGroup.Post("/", controllers.CreateUser)
 	userGroup.Get("/:id", middleware.AuthMiddleware, controllers.GetUserByID) // Protected Route

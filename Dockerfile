@@ -37,5 +37,5 @@ RUN go build -o main ./src
 EXPOSE $APP_PORT
 
 # Run the executable
-# CMD ["./main"]
+
 CMD ["air", "-c", ".air.toml"]

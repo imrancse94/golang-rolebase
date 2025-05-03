@@ -38,6 +38,17 @@ func (db *MongoDB) Find(ctx context.Context, collection string, query interface{
 	return db.Db.Collection(collection).FindOne(ctx, query).Decode(result)
 }
 
+// FindAll retrieves all records matching the query in MongoDB
+func (db *MongoDB) FindAll(ctx context.Context, collection string, query interface{}, result interface{}) error {
+	cursor, err := db.Db.Collection(collection).Find(ctx, query)
+	if err != nil {
+		return err
+	}
+	defer cursor.Close(ctx)
+
+	return cursor.All(ctx, result)
+}
+
 func (db *MongoDB) Update(ctx context.Context, collection string, query interface{}, updateData interface{}) error {
 	_, err := db.Db.Collection(collection).UpdateOne(ctx, query, updateData)
 	return err

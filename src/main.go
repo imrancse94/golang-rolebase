@@ -39,7 +39,6 @@ func main() {
 	// Setup Fiber app
 	app := fiber.New()
 	routes.SetupRoutes(app)
-	routes.SetupAuthRoutes(app) // Add auth routes
 
 	// Start server with dynamic port
 	log.Printf("Server is running on port %s", port)

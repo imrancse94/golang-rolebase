@@ -37,6 +37,11 @@ func (db *SQLDB) Delete(ctx context.Context, collection string, query interface{
 	return db.Db.Table(collection).Where(query).Delete(nil).Error
 }
 
+// FindAll retrieves all records matching the query in SQL
+func (db *SQLDB) FindAll(ctx context.Context, collection string, query interface{}, result interface{}) error {
+	return db.Db.Table(collection).Where(query).Find(result).Error
+}
+
 func (db *SQLDB) QueryWithBuilder(ctx context.Context, builder QueryBuilder, result interface{}) error {
 	query, args := builder.Build()
 	return db.Db.WithContext(ctx).Raw(query, args...).Scan(result).Error
